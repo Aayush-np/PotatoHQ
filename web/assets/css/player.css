@@ -449,6 +449,7 @@
   .volume-wrap input[type="range"] { width: 64px; }
 }
 @media (max-width: 900px) {
+  :root { --player-h: 132px; } /* taller mobile bar → keeps the queue panel offset right */
   .shell { grid-template-columns: 1fr; }
   .sidebar {
     position: fixed;
@@ -468,24 +469,49 @@
     width: calc(100vw - 16px);
     max-height: 52vh;
   }
-  .player-bar { grid-template-columns: auto minmax(120px, 180px) 1fr auto; padding: 0 10px; gap: 8px; height: 76px; }
-  .pb-controls .btn-icon { width: 32px; height: 32px; }
-  .play-btn { width: 38px !important; height: 38px !important; }
+  /* Player bar: two stacked rows on phones.
+     Row 1: [add + artwork] [title/artist] [volume | queue]
+     Row 2: progress, then transport controls — nothing overlaps. */
+  .player-bar {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "left now side"
+      "center center center";
+    grid-template-rows: auto auto;
+    height: auto;
+    min-height: 120px;
+    padding: 8px 10px 10px;
+    gap: 6px 10px;
+  }
+  .pb-left { grid-area: left; gap: 6px; }
+  .pb-now { grid-area: now; min-width: 0; }
+  .pb-side { grid-area: side; gap: 2px; }
+  .pb-center {
+    grid-area: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .pb-progress { order: 1; gap: 8px; }
+  .pb-controls { order: 2; justify-content: center; }
   .pb-perm-note { display: none; }
   .ch-topic { display: none; }
   .add-forms { grid-template-columns: 1fr; }
+  .code-chip { display: none; } /* the invite modal covers sharing on phones */
+  .volume-wrap input[type="range"],
+  .volume-wrap .vol-pct { display: none; }
 }
 @media (max-width: 560px) {
   .pb-now { font-size: 12px; min-width: 0; }
-  .pb-title { font-size: 12.5px; }
-  .pb-artist { font-size: 11px; }
+  .pb-title { font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pb-artist { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .member-chip .mc-name { display: none; }
   .member-chip { padding: 3px 5px; }
   .ch-actions .label { display: none; }
   .modal-body, .modal-head { padding-inline: 14px; }
-  .volume-wrap .vol-pct { display: none; }
-  .volume-wrap input[type="range"] { width: 52px; }
-  .add-music-btn { padding: 8px 10px; }
+  .pb-side .btn-icon { width: 32px; height: 32px; }
+  .add-music-btn { padding: 8px 9px; }
   .add-music-btn span { display: none; }
   .vd-name { max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
