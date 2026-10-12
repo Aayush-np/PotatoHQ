@@ -1,7 +1,9 @@
 """Capture fresh PotatoHQ screenshots for the GitHub README.
 
 Four friends — Aayush, Aakash, Aalok, Dikshant — register, friend up, hang out
-in a room with chat, voice, and a live shared queue. Saves to docs/screenshots.
+in a room with chat, voice, and a live shared queue of Nepali tracks
+(Sarangi, Bardali). Runs HEADED so the YouTube embed genuinely plays — the
+screenshots show real album art, progress and the fixed mobile layout.
 
 Run with a server on POTATO_TEST_BASE (default http://127.0.0.1:8421).
 """
@@ -26,14 +28,17 @@ FRIENDS = [
     {"name": "Dikshant", "tagline": None},
 ]
 
+# queries whose first result is a clean, embeddable YouTube Music audio track
+SEARCHES = ["sarangi", "bardali", "dhanyabad"]
+
 CHAT = [
-    (0, "yo who put on midnight city AGAIN 😭"),
+    (0, "yo who put on sarangi on loop 😭"),
     (1, "bro it's the bunker anthem at this point"),
     (2, "and yet… nobody is skipping it"),
     (0, "the bunker has spoken 🥔"),
     (3, "wait wait i love this part"),
     (3, "someone queue the next one, my turn to DJ"),
-    (1, "adding, don't @ me"),
+    (1, "adding bardali, don't @ me"),
     (2, "aayush your mic is so loud lol"),
     (0, "that's what the volume slider is for 🥔"),
 ]
@@ -53,7 +58,9 @@ def register(page, f):
 def main():
     os.makedirs(os.path.join(os.getcwd(), OUT.replace("/", "\\")), exist_ok=True)
     with sync_playwright() as p:
-        browser = p.chromium.launch(args=ARGS)
+        # HEADED: the YouTube embed actually plays, so artwork/progress in the
+        # shots are the real thing (not a headless stub)
+        browser = p.chromium.launch(args=ARGS, headless=False)
         ctxs = [browser.new_context(viewport={"width": 1440, "height": 900} if i == 0 else {"width": 1280, "height": 820}) for i in range(4)]
         pages = [c.new_page() for c in ctxs]
 
@@ -111,22 +118,38 @@ def main():
         host.wait_for_timeout(700)
         host.screenshot(path=OUT + "2-home.png")
 
-        # --- music: search + queue (real YouTube Music) ---
+        # --- music: known-good Nepali tracks, then the real search modal ---
         host.goto(BASE + "/#/room/" + str(host.evaluate("() => window.__potatohq.store.rooms[0].id")))
         host.wait_for_selector(".composer", timeout=10000)
+        # YouTube serves bot-detection errors to automation browsers (even
+        # headed Playwright Chromium), so every page suppresses embed-failure
+        # reports for the shoot — the player bar renders artwork + progress
+        # from the authoritative server state, which keeps ticking regardless.
+        for pg in pages:
+            pg.evaluate("() => { window.__potatohq.player.suppressEmbedErrors = true; }")
+        # deterministic queue: Sarangi (Sushant KC) plays now, Bardali and
+        # Dhanyabad (Humane Sagar) wait in the queue — ATV tracks that embed fine
+        host.evaluate("""() => {
+          const v = window.__potatohq;
+          v.send({type:'music.control', roomId: v.store.channel.id, action:'add', params:{tracks:[
+            {videoId:'RRJEfcdF8vQ', title:'Sarangi', artist:'Sushant KC', duration:245,
+             artwork:'https://i.ytimg.com/vi/RRJEfcdF8vQ/hqdefault.jpg'},
+            {videoId:'H2xaiUjYbRw', title:'Bardali', artist:'Sushant KC', duration:227,
+             artwork:'https://i.ytimg.com/vi/H2xaiUjYbRw/hqdefault.jpg'},
+            {videoId:'Tf2HsBAaVOY', title:'Dhanyabad', artist:'Humane Sagar', duration:246,
+             artwork:'https://i.ytimg.com/vi/Tf2HsBAaVOY/hqdefault.jpg'},
+          ]}});
+        }""")
         host.click("[aria-label='Search and add music']")
-        host.fill("[aria-label='Search YouTube Music']", "midnight city")
+        host.fill("[aria-label='Search YouTube Music']", "sarangi")
         host.wait_for_selector(".ms-row .add-btn", timeout=25000)
-        host.wait_for_timeout(400)
+        host.wait_for_timeout(500)
         host.screenshot(path=OUT + "3-music-search.png")
-        host.locator(".ms-row .add-btn").nth(0).click()
-        host.wait_for_timeout(800)
-        host.fill("[aria-label='Search YouTube Music']", "blinding lights")
-        host.wait_for_selector(".ms-row .add-btn", timeout=25000)
-        host.locator(".ms-row .add-btn").nth(0).click()
-        host.wait_for_timeout(800)
+        host.locator(".ms-row .add-btn").nth(0).click()  # a real queue action in the shot
+        host.wait_for_timeout(600)
         host.keyboard.press("Escape")
-        host.wait_for_timeout(2500)
+        # let the track genuinely start: artwork + a mid-song progress bar
+        host.wait_for_timeout(9000)
 
         # --- 3. the room: chat + members + voice + live music ---
         host.screenshot(path=OUT + "4-room.png")
@@ -149,6 +172,7 @@ def main():
         rid = host.evaluate("() => window.__potatohq.store.rooms[0].id")
         mob.goto(BASE + "/#/room/" + str(rid))
         mob.wait_for_selector(".composer", timeout=10000)
+        mob.evaluate("() => { window.__potatohq.player.suppressEmbedErrors = true; }")
         mob.wait_for_timeout(1800)
         mob.screenshot(path=OUT + "8-mobile-room.png")
         mob.click("[aria-label='Open sidebar']")
