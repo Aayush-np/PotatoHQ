@@ -1,5 +1,6 @@
 """Response builders: user cards, potato avatars, room/message/track dicts."""
 import hashlib
+import html
 import time
 import zlib
 
@@ -75,10 +76,12 @@ def user_card_by_id(uid: int, online: bool = False, activity: dict | None = None
 
 
 def track_dict(video_id, title, artist, artwork, duration) -> dict:
+    # YouTube Music occasionally hands back half-decoded entities
+    # ("Sabin Rai, amp; The Pharaohs") — clean them before they hit the UI.
     return {
         "videoId": video_id,
-        "title": (title or "Unknown track")[:200],
-        "artist": (artist or "")[:200],
+        "title": html.unescape((title or "Unknown track") or "")[:200],
+        "artist": html.unescape(artist or "")[:200],
         "artwork": artwork,
         "duration": round(duration, 3) if duration else None,
     }
