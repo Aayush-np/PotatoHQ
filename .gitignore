@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# PotatoHQ runtime data — real accounts, rooms, messages and avatars live here.
+# NEVER commit this folder.
+data/
+
+# Logs & local debris
+*.log
+*.out
+*.db
+*.sqlite*
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store/
+Thumbs.db

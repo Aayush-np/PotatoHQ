@@ -1,0 +1,26 @@
+{
+  "name": "PotatoHQ — the spud clubhouse",
+  "short_name": "PotatoHQ",
+  "description": "The unofficial headquarters of you and your spuds: rooms, voice chat, and music together.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#141210",
+  "theme_color": "#141210",
+  "categories": ["social", "music", "communication"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
