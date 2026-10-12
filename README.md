@@ -30,8 +30,9 @@ Everyone on the same Wi-Fi opens `http://<your-ip>:8420`, registers, and drops i
 | ![Queue](docs/screenshots/5-queue.png) | ![Friend's view](docs/screenshots/6-friend-view.png) |
 | ![Mobile](docs/screenshots/8-mobile-room.png) | ![Mobile drawer](docs/screenshots/9-mobile-drawer.png) |
 
-*Four friends — Aayush, Aakash, Aalok and Dikshant — hanging out in "The Starch Bunker":
-chat, voice with per-spud volume, and a live shared queue.*
+*Four friends — Aayush, Aakash, Aalok and Dikshant — hanging out in "The Starch Bunker".
+Now spudding: **Sarangi — Sushant KC**, with Bardali and Dhanyabad queued up; chat, voice with
+per-spud volume, and a live shared queue on desktop and mobile.*
 
 ## What's inside
 
